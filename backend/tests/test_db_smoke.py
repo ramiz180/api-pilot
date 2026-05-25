@@ -43,8 +43,12 @@ async def test_db_select_one(db_session: AsyncSession):
     assert value == 1
 
 
-async def test_base_metadata_is_empty():
-    """Base.metadata has no tables yet — models are added in Sprint 1."""
-    assert isinstance(Base.metadata.tables, dict)
-    # Empty for now; this assertion will change once real models are added
-    assert len(Base.metadata.tables) == 0
+async def test_base_metadata_has_sprint1_tables():
+    """Base.metadata must contain all 5 Sprint 1 tables once models are imported."""
+    # Import triggers model registration on Base.metadata
+    import app.models  # noqa: F401
+
+    expected = {"workspaces", "users", "specs", "suites", "endpoints"}
+    assert expected.issubset(Base.metadata.tables.keys()), (
+        f"Missing tables: {expected - set(Base.metadata.tables.keys())}"
+    )
