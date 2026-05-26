@@ -20,15 +20,20 @@ SQLAlchemy's internal `.schema` attribute on Table objects) but stored
 as `schema` in the database to match the spec.
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.suite import Suite
 
 
 class Endpoint(Base):
@@ -61,6 +66,15 @@ class Endpoint(Base):
         sa.DateTime(timezone=True),
         server_default=sa.func.now(),
         nullable=False,
+    )
+
+    # ------------------------------------------------------------------
+    # Relationships
+    # ------------------------------------------------------------------
+
+    suite: Mapped["Suite"] = relationship(
+        back_populates="endpoints",
+        lazy="select",
     )
 
     def __repr__(self) -> str:

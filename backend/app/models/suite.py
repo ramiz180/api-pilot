@@ -7,13 +7,21 @@ A suite transitions pending → parsing → parsed (or failed) as the
 async worker processes the parent spec.
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.endpoint import Endpoint
+    from app.models.spec import Spec
+    from app.models.workspace import Workspace
 
 
 class Suite(Base):
@@ -53,6 +61,24 @@ class Suite(Base):
         server_default=sa.func.now(),
         onupdate=sa.func.now(),
         nullable=False,
+    )
+
+    # ------------------------------------------------------------------
+    # Relationships
+    # ------------------------------------------------------------------
+
+    endpoints: Mapped[list["Endpoint"]] = relationship(
+        back_populates="suite",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
+    spec: Mapped["Spec"] = relationship(
+        back_populates="suites",
+        lazy="select",
+    )
+    workspace: Mapped["Workspace"] = relationship(
+        back_populates="suites",
+        lazy="select",
     )
 
     def __repr__(self) -> str:

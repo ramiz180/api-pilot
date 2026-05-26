@@ -53,6 +53,9 @@ AsyncSessionLocal = async_sessionmaker(
     autocommit=False,
 )
 
+# Alias used by tests and CLI scripts (matches the name referenced in docs).
+async_session_maker = AsyncSessionLocal
+
 
 # ---------------------------------------------------------------------------
 # FastAPI dependency

@@ -9,13 +9,20 @@ It becomes a MinIO object key in a later sprint when object storage is added.
 parsed_at is null until the async parser worker finishes processing.
 """
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.suite import Suite
+    from app.models.workspace import Workspace
 
 
 class Spec(Base):
@@ -44,6 +51,20 @@ class Spec(Base):
         sa.DateTime(timezone=True),
         server_default=sa.func.now(),
         nullable=False,
+    )
+
+    # ------------------------------------------------------------------
+    # Relationships
+    # ------------------------------------------------------------------
+
+    workspace: Mapped["Workspace"] = relationship(
+        back_populates="specs",
+        lazy="select",
+    )
+    suites: Mapped[list["Suite"]] = relationship(
+        back_populates="spec",
+        cascade="all, delete-orphan",
+        lazy="select",
     )
 
     def __repr__(self) -> str:

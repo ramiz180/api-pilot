@@ -15,11 +15,14 @@ from app.db.base import Base
 
 @pytest.fixture
 async def sqlite_engine():
-    """Create a fresh in-memory async SQLite engine for each test."""
+    """Create a fresh in-memory async SQLite engine for each test.
+
+    We do NOT call ``Base.metadata.create_all`` here: the Endpoint model uses
+    a PostgreSQL-specific JSONB column that SQLite's DDL compiler cannot
+    render.  The only test that uses this fixture (``test_db_select_one``)
+    just runs ``SELECT 1`` and does not need any tables.
+    """
     engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
-    async with engine.begin() as conn:
-        # Create all tables defined on Base (currently none — that's fine)
-        await conn.run_sync(Base.metadata.create_all)
     yield engine
     await engine.dispose()
 
