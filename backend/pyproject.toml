@@ -19,6 +19,8 @@ dependencies = [
     "greenlet>=3.1",
     # Auth / hashing
     "bcrypt>=4.2",
+    # File upload support (required by FastAPI UploadFile)
+    "python-multipart>=0.0.9",
     # Storage
     "aiofiles>=23.2",
     # Spec parsing
@@ -54,4 +56,6 @@ select = ["E", "F", "I", "W", "UP"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 testpaths = ["tests"]

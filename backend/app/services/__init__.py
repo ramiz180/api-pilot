@@ -18,3 +18,12 @@ class SpecImportError(Exception):
     - Spec content cannot be parsed as Swagger / OpenAPI
     - Database write failure
     """
+
+
+class SuiteNotFoundError(Exception):
+    """Raised by the suite service when a requested suite cannot be found.
+
+    Possible causes:
+    - Suite ID does not exist
+    - Suite belongs to a different workspace (tenant isolation)
+    """

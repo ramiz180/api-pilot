@@ -12,6 +12,8 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api import imports as imports_router_module
+from app.api import suites as suites_router_module
 from app.api.health import router as health_router
 from app.config import get_settings
 from app.db.session import dispose_engine
@@ -85,6 +87,16 @@ def create_app() -> FastAPI:
 
     # --- Routers ------------------------------------------------------------
     application.include_router(health_router, prefix=settings.api_prefix)
+    application.include_router(
+        imports_router_module.router,
+        prefix=settings.api_prefix,
+        tags=["imports"],
+    )
+    application.include_router(
+        suites_router_module.router,
+        prefix=settings.api_prefix,
+        tags=["suites"],
+    )
 
     logger.info("app_started", env=settings.app_env, prefix=settings.api_prefix)
     return application
