@@ -37,6 +37,10 @@ class Settings(BaseSettings):
     db_max_overflow: int = 20
     db_pool_pre_ping: bool = True
 
+    # Storage
+    storage_backend: str = "local"
+    storage_local_dir: str = "storage"
+
 
 def get_settings() -> Settings:
     return Settings()
