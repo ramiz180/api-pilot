@@ -7,6 +7,7 @@ from app.ai.providers.anthropic_provider import AnthropicProvider
 from app.ai.providers.base import LLMProviderError, Message
 from app.ai.providers.factory import get_llm_provider, reset_provider_cache
 from app.ai.providers.mock_provider import MockProvider
+from app.ai.providers.openai_compatible_provider import OpenAICompatibleProvider
 
 
 class SampleOutput(BaseModel):
@@ -92,3 +93,52 @@ async def test_anthropic_provider_model_info():
     assert info.provider == "anthropic"
     assert info.model == "claude-sonnet-4-5"
     assert info.supports_tools is True
+
+
+async def test_openai_compatible_provider_requires_api_key():
+    with pytest.raises(LLMProviderError, match="API key is required"):
+        OpenAICompatibleProvider(
+            api_key="",
+            base_url="https://example.com/v1",
+            model="fake-model",
+        )
+
+
+async def test_openai_compatible_provider_model_info():
+    provider = OpenAICompatibleProvider(
+        api_key="fake-key",
+        base_url="https://integrate.api.nvidia.com/v1",
+        model="meta/llama-3.3-70b-instruct",
+        provider_name="nvidia_nim",
+        context_window=128_000,
+    )
+    info = provider.get_model_info()
+    assert info.provider == "nvidia_nim"
+    assert info.model == "meta/llama-3.3-70b-instruct"
+    assert info.context_window == 128_000
+
+
+async def test_factory_default_is_nvidia_nim_when_no_provider_set(monkeypatch):
+    monkeypatch.delenv("LLM_PROVIDER", raising=False)
+    monkeypatch.setenv("NVIDIA_API_KEY", "fake-nvidia-key")
+    reset_provider_cache()
+    provider = get_llm_provider()
+    assert isinstance(provider, OpenAICompatibleProvider)
+    assert provider.get_model_info().provider == "nvidia_nim"
+
+
+async def test_factory_groq_selection(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "groq")
+    monkeypatch.setenv("GROQ_API_KEY", "fake-groq-key")
+    reset_provider_cache()
+    provider = get_llm_provider()
+    assert isinstance(provider, OpenAICompatibleProvider)
+    assert provider.get_model_info().provider == "groq"
+
+
+async def test_factory_missing_api_key_raises(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "nvidia_nim")
+    monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
+    reset_provider_cache()
+    with pytest.raises(LLMProviderError, match="NVIDIA_API_KEY"):
+        get_llm_provider()

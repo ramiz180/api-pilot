@@ -30,6 +30,7 @@ dependencies = [
     # LLM providers
     "anthropic>=0.40.0",
     "instructor>=1.7.0",
+    "openai>=1.50.0",
 ]
 
 [project.optional-dependencies]

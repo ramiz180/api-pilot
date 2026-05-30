@@ -42,10 +42,15 @@ class Settings(BaseSettings):
     storage_local_dir: str = "storage"
 
     # LLM
-    llm_provider: str = "anthropic"
+    llm_provider: str = "nvidia_nim"
+    llm_base_url: str | None = None
+    llm_model: str | None = None
+    llm_timeout_seconds: float = 120.0
+    nvidia_api_key: str | None = None
+    groq_api_key: str | None = None
+    openai_api_key: str | None = None
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-sonnet-4-5"
-    llm_timeout_seconds: float = 120.0
 
 
 def get_settings() -> Settings:

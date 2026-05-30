@@ -10,9 +10,12 @@ from __future__ import annotations
 import os
 
 # Force mock LLM provider BEFORE any app imports so the factory never tries
-# to instantiate AnthropicProvider (and hit a real API) during tests.
+# to instantiate a real provider (and hit a real API) during tests.
 os.environ.setdefault("LLM_PROVIDER", "mock")
 os.environ.setdefault("ANTHROPIC_API_KEY", "test-key-not-used")
+os.environ.setdefault("NVIDIA_API_KEY", "test-key-not-used")
+os.environ.setdefault("GROQ_API_KEY", "test-key-not-used")
+os.environ.setdefault("OPENAI_API_KEY", "test-key-not-used")
 
 from collections.abc import AsyncGenerator
 
