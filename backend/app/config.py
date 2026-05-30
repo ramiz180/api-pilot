@@ -41,6 +41,12 @@ class Settings(BaseSettings):
     storage_backend: str = "local"
     storage_local_dir: str = "storage"
 
+    # LLM
+    llm_provider: str = "anthropic"
+    anthropic_api_key: str | None = None
+    anthropic_model: str = "claude-sonnet-4-5"
+    llm_timeout_seconds: float = 120.0
+
 
 def get_settings() -> Settings:
     return Settings()

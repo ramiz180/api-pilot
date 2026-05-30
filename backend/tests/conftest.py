@@ -7,6 +7,13 @@ conftest fixtures (standard pytest override semantics).
 
 from __future__ import annotations
 
+import os
+
+# Force mock LLM provider BEFORE any app imports so the factory never tries
+# to instantiate AnthropicProvider (and hit a real API) during tests.
+os.environ.setdefault("LLM_PROVIDER", "mock")
+os.environ.setdefault("ANTHROPIC_API_KEY", "test-key-not-used")
+
 from collections.abc import AsyncGenerator
 
 import pytest
@@ -78,3 +85,11 @@ async def db() -> AsyncGenerator[AsyncSession, None]:
                 pass
     finally:
         await engine.dispose()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _reset_llm_cache():
+    from app.ai.providers.factory import reset_provider_cache  # noqa: PLC0415
+    reset_provider_cache()
+    yield
+    reset_provider_cache()
